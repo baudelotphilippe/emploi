@@ -1,121 +1,145 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Offres d'emploi{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    {% block stylesheets %}{% endblock %}
-    {% block javascripts %}{% endblock %}
-  </head>
-  <body class="bg-light">
-    {% block body %}
-    <div class="container py-4">
-      <h1 class="mb-4 text-center">Offres d'emploi</h1>
-      <p class="text-center">
-  Il y a <strong id="nb-offres">{{ offres.resultats|length }}</strong>
-  <span id="nb-libelle">{{ offres.resultats|length > 1 ? 'réponses' : 'réponse' }}</span>
-</p>
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Offres d'emploi{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  {% block stylesheets %}{% endblock %}
+  {% block javascripts %}{% endblock %}
+</head>
+<body class="bg-light">
+  {% block body %}
+  <div class="container py-4">
+    <h1 class="mb-4 text-center">Offres d'emploi</h1>
+    <p class="text-center">
+      Il y a <strong id="nb-offres">{{ offres.resultats|length }}</strong>
+      <span id="nb-libelle">{{ offres.resultats|length > 1 ? 'réponses' : 'réponse' }}</span>
+    </p>
 
-      {# Filtres Villes #}
-      {% set villes = [] %}
-      {% for offre in offres.resultats %}
-        {% set brut = offre.lieuTravail.libelle ?? '' %}
-        {% set ville = brut|replace({'86 - ': ''})|lower|title %}
-        {% if ville and ville not in villes %}
-          {% set villes = villes|merge([ville]) %}
-        {% endif %}
-      {% endfor %}
-      {% set villes = villes|sort %}
+    {# Filtres Villes #}
+    {% set villes = [] %}
+    {% for offre in offres.resultats %}
+      {% set brut = offre.lieuTravail.libelle ?? '' %}
+      {% set ville = brut|replace({'86 - ': ''})|lower|title %}
+      {% if ville and ville not in villes %}
+        {% set villes = villes|merge([ville]) %}
+      {% endif %}
+    {% endfor %}
+    {% set villes = villes|sort %}
 
-      <div class="mb-4 text-center">
-        <div class="btn-group flex-wrap" id="ville-filter-bar">
-          <button class="btn btn-outline-primary active ville-btn" data-ville="all">Toutes les villes</button>
-          {% for ville in villes %}
-            {% set safeVille = ville|lower|replace({
-              ' ': '-', 'é':'e', 'è':'e', 'ê':'e', 'ë':'e', 'à':'a', 'â':'a', 'ä':'a', 'î':'i', 'ï':'i',
-              'ô':'o', 'ö':'o', 'û':'u', 'ù':'u', 'ü':'u', 'ç':'c'
-            }) %}
-            <button class="btn btn-outline-primary ville-btn" data-ville="{{ safeVille }}">{{ ville }}</button>
-          {% endfor %}
-        </div>
-      </div>
-
-      {# Filtres Contrat #}
-      <div class="mb-4 text-center">
-        <div class="btn-group" role="group">
-          <button class="btn btn-outline-secondary active filter-btn" data-filter="all">Tous</button>
-          <button class="btn btn-outline-secondary filter-btn" data-filter="CDD">CDD</button>
-          <button class="btn btn-outline-secondary filter-btn" data-filter="CDI">CDI</button>
-        </div>
-      </div>
-
-      {# Offres #}
-      <div id="offres-container" class="row g-4">
-        {% for offre in offres.resultats %}
-          {% set brut = offre.lieuTravail.libelle ?? '' %}
-          {% set ville = brut|replace({'86 - ': ''})|lower|title %}
-          {% set safeVille = ville|lower|replace({
-            ' ': '-', 'é':'e', 'è':'e', 'ê':'e', 'ë':'e', 'à':'a', 'â':'a', 'ä':'a', 'î':'i', 'ï':'i',
-            'ô':'o', 'ö':'o', 'û':'u', 'ù':'u', 'ü':'u', 'ç':'c'
-          }) %}
-          <div class="col-md-6 offre-card" data-ville="{{ safeVille }}" data-contrat="{{ offre.typeContrat }}">
-            <div class="card border-0 shadow-sm h-100">
-              <div class="card-body">
-                <h5 class="card-title">{{ offre.intitule }}</h5>
-                <p class="mb-1"><strong>Entreprise :</strong> {{ offre.entreprise.nom ?? '—' }}</p>
-                <p class="mb-1"><strong>Ville :</strong> {{ offre.lieuTravail.libelle }}</p>
-                <p class="mb-1"><strong>Type :</strong> {{ offre.typeContratLibelle }}</p>
-                <p class="mb-1"><strong>Expérience :</strong> {{ offre.experienceLibelle }}</p>
-                <p class="mb-1"><strong>Salaire :</strong> {{ offre.salaire.libelle ?? '—' }}</p>
-                <p class="mb-1"><strong>Contexte :</strong> {{ offre.contexteTravail.horaires[0] ?? '—' }}</p>
-                <p class="text-muted"><small>Actualisé le {{ offre.dateActualisation|date("d/m/Y \\à H\\hi") }}</small></p>
-              </div>
-              <div class="card-footer bg-transparent border-0">
-                <a href="{{ offre.origineOffre.urlOrigine }}" class="btn btn-sm btn-primary" target="_blank">Voir l'offre</a>
-              </div>
-            </div>
-          </div>
+    <div class="mb-4 text-center">
+      <div class="btn-group flex-wrap" id="ville-filter-bar">
+        <button class="btn btn-outline-primary active ville-btn" data-ville="all">Toutes les villes</button>
+        {% for ville in villes %}
+          {% set safeVille = ville|lower|replace({' ':'-', 'é':'e', 'è':'e', 'ê':'e', 'ë':'e', 'à':'a', 'â':'a', 'ä':'a', 'î':'i', 'ï':'i', 'ô':'o', 'ö':'o', 'û':'u', 'ù':'u', 'ü':'u', 'ç':'c'}) %}
+          <button class="btn btn-outline-primary ville-btn" data-ville="{{ safeVille }}">{{ ville }}</button>
         {% endfor %}
       </div>
     </div>
-    {% endblock %}
 
-    <script>
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const value = btn.dataset.filter;
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
+    {# Filtres Types de contrat (types principaux) #}
+    {% set types_contrat = [] %}
+    {% for offre in offres.resultats %}
+      {% set label = offre.typeContratLibelle ?? '' %}
+      {% set type_principal = label|split(' - ')|first %}
+      {% if type_principal and type_principal not in types_contrat %}
+        {% set types_contrat = types_contrat|merge([type_principal]) %}
+      {% endif %}
+    {% endfor %}
+    {% set types_contrat = types_contrat|sort %}
 
-          document.querySelectorAll('.offre-card').forEach(card => {
-            const contrat = card.dataset.contrat;
-            card.style.display = (value === 'all' || contrat === value) ? 'block' : 'none';
-          });
-           updateOffreCount();
-        });
+    <div class="mb-4 text-center">
+      <div class="btn-group flex-wrap" role="group">
+        <button class="btn btn-outline-secondary active filter-btn" data-filter="all">Tous</button>
+        {% for type in types_contrat %}
+          {% set safeType = type|lower|replace({' ':'-', 'é':'e', 'è':'e', 'ê':'e', 'ë':'e', 'à':'a', 'â':'a', 'ä':'a', 'î':'i', 'ï':'i', 'ô':'o', 'ö':'o', 'û':'u', 'ù':'u', 'ü':'u', 'ç':'c'}) %}
+          <button class="btn btn-outline-secondary filter-btn" data-filter="{{ safeType }}">{{ type }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# Offres #}
+    <div id="offres-container" class="row g-4">
+      {% for offre in offres.resultats %}
+        {% set brut = offre.lieuTravail.libelle ?? '' %}
+        {% set ville = brut|replace({'86 - ': ''})|lower|title %}
+        {% set safeVille = ville|lower|replace({' ':'-', 'é':'e', 'è':'e', 'ê':'e', 'ë':'e', 'à':'a', 'â':'a', 'ä':'a', 'î':'i', 'ï':'i', 'ô':'o', 'ö':'o', 'û':'u', 'ù':'u', 'ü':'u', 'ç':'c'}) %}
+        {% set typeLabel = offre.typeContratLibelle ?? '' %}
+        {% set safeType = typeLabel|split(' - ')|first|lower|replace({' ':'-', 'é':'e', 'è':'e', 'ê':'e', 'ë':'e', 'à':'a', 'â':'a', 'ä':'a', 'î':'i', 'ï':'i', 'ô':'o', 'ö':'o', 'û':'u', 'ù':'u', 'ü':'u', 'ç':'c'}) %}
+        <div class="col-md-6 offre-card" data-ville="{{ safeVille }}" data-contrat="{{ safeType }}">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title">{{ offre.intitule }}</h5>
+              {% if offre.competences is defined and offre.competences|length > 0 %}
+                <p class="mb-1"><strong>Compétences :</strong></p>
+                <ul class="mb-2">
+                  {% for competence in offre.competences %}
+                    <li>{{ competence.libelle }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+              <p class="mb-1"><strong>Entreprise :</strong> {{ offre.entreprise.nom ?? '—' }}</p>
+              <p class="mb-1"><strong>Ville :</strong> {{ offre.lieuTravail.libelle }}</p>
+              <p class="mb-1"><strong>Type :</strong> {{ offre.typeContratLibelle }}</p>
+              <p class="mb-1"><strong>Expérience :</strong> {{ offre.experienceLibelle }}</p>
+              <p class="mb-1"><strong>Salaire :</strong> {{ offre.salaire.libelle ?? '—' }}</p>
+              <p class="mb-1"><strong>Contexte :</strong> {{ offre.contexteTravail.horaires[0] ?? '—' }}</p>
+              <p class="text-muted"><small>Actualisé le {{ offre.dateActualisation|date("d/m/Y \\à H\\hi") }}</small></p>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+              <a href="{{ offre.origineOffre.urlOrigine }}" class="btn btn-sm btn-primary" target="_blank">Voir l'offre</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endblock %}
+
+  <script>
+    let activeVille = 'all';
+    let activeContrat = 'all';
+
+    function updateFilters() {
+      const cards = document.querySelectorAll('.offre-card');
+      let count = 0;
+
+      cards.forEach(card => {
+        const ville = card.dataset.ville;
+        const contrat = card.dataset.contrat;
+
+        const villeOk = (activeVille === 'all' || ville === activeVille);
+        const contratOk = (activeContrat === 'all' || contrat === activeContrat);
+
+        if (villeOk && contratOk) {
+          card.style.display = 'block';
+          count++;
+        } else {
+          card.style.display = 'none';
+        }
       });
 
-      document.querySelectorAll('.ville-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.ville-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const target = btn.dataset.ville;
+      document.getElementById('nb-offres').textContent = count;
+      document.getElementById('nb-libelle').textContent = count > 1 ? 'réponses' : 'réponse';
+    }
 
-          document.querySelectorAll('.offre-card').forEach(card => {
-            const ville = card.dataset.ville;
-            card.style.display = (target === 'all' || ville === target) ? 'block' : 'none';
-          });
-           updateOffreCount();
-        });
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeContrat = btn.dataset.filter;
+        updateFilters();
       });
+    });
 
-      function updateOffreCount() {
-  const visibles = document.querySelectorAll('.offre-card:not([style*="display: none"])');
-  const count = visibles.length;
-  document.getElementById('nb-offres').textContent = count;
-  document.getElementById('nb-libelle').textContent = count > 1 ? 'réponses' : 'réponse';
-}
-
-    </script>
-  </body>
+    document.querySelectorAll('.ville-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.ville-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeVille = btn.dataset.ville;
+        updateFilters();
+      });
+    });
+  </script>
+</body>
 </html>
